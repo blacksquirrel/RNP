@@ -15,7 +15,7 @@ public class POP3Server extends Thread {
     Socket connectionSocket = null;
     boolean startChat = true;
     int connectionCounter = 1;
-    private String AbholAccount = "iAm";
+    private String AbholAccount = "Iam";
     private String AbholPASSWORD = "me";
     private MailsManager mails;
 
@@ -24,6 +24,9 @@ public class POP3Server extends Thread {
     }
 
     public void run() {
+
+
+
         try {
 
             POP3Konto abholKonto = new POP3Konto(AbholAccount, AbholPASSWORD, HOST, PORT);
@@ -31,14 +34,12 @@ public class POP3Server extends Thread {
                     InetAddress.getByName(HOST));
             System.out.println("server is started");
 
-
-            //ToDo Nachrichten abruft und speichert => Client.run()
-
+            new MailsCollectorThread(mails,null).run();
 
             do {
                 connectionSocket = welcomeSocket.accept();
                 if (startChat) {
-                    new ConnectionThread(connectionSocket, this, connectionCounter, abholKonto, mails).start();
+                    new MailsKeeperThread (connectionSocket, this, connectionCounter, abholKonto, mails).start();
                     connectionCounter++;
                 }
             } while (startChat);
@@ -57,7 +58,7 @@ public class POP3Server extends Thread {
     }
 }
 
-class ConnectionThread extends Thread {
+class MailsKeeperThread  extends Thread {
     private static final String CRLF = "\r\n";
     private Socket connectionSocket;
     private int name;
@@ -69,7 +70,7 @@ class ConnectionThread extends Thread {
     private POP3Server server;
     private MailsManager mailsManager;
 
-    ConnectionThread(Socket connectionSocket, POP3Server server, int counter, POP3Konto abholKonto, MailsManager mails) {
+    MailsKeeperThread (Socket connectionSocket, POP3Server server, int counter, POP3Konto abholKonto, MailsManager mails) {
         this.connectionSocket = connectionSocket;
         this.server = server;
         this.name = counter;
@@ -98,10 +99,11 @@ class ConnectionThread extends Thread {
                     outToClient.writeBytes("+OK" + CRLF);
                     break;
                 }
-                outToClient.writeBytes(checkRequest(messageFromClient)+CRLF);
+                outToClient.writeBytes(checkRequest()+CRLF);
             }
 
             //The Update State
+            mailsManager.update();
             connectionSocket.close();
             System.out.println("connection with POP3Server " + name + " is broken, Server is off");
 
@@ -122,7 +124,7 @@ class ConnectionThread extends Thread {
             }
             guess = check("USER");
         }
-        outToClient.writeBytes("+OK welcome" + CRLF);
+        outToClient.writeBytes("+OK welcome, write your password" + CRLF);
 
         guess = false;
         while (!guess) {
@@ -138,7 +140,7 @@ class ConnectionThread extends Thread {
         return guess;
     }
 
-    private boolean check(String command) throws IOException {
+    private boolean check(String command ) throws IOException {
 
         String[] request = messageFromClient.trim().split("\\s+");
 
@@ -168,15 +170,15 @@ class ConnectionThread extends Thread {
         return false;
     }
 
-    private String checkRequest(String message) {
+    private String checkRequest() {
 
-        String[] request = message.trim().split("\\s+");
+        String[] request = messageFromClient.trim().split("\\s+");
         String reply = "-ERR bad Command";
 
         if(request.length < 2){
             switch (request[0]){
                 case ("STAT"):
-                    reply = mailsManager.getStat();
+                    reply =mailsManager.getStat();
                     break;
                 case ("NOOP"):
                     reply = "+OK";
