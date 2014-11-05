@@ -1,34 +1,41 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by maxim on 31.10.2014.
  */
 public class MailsManager {
-private File dir;
     private final String CRLF = "\r\n";
+    private File dir;
+    private String DIRNAME = "maildrop";
 
     public MailsManager() {
-        dir = new File("mails");
+        dir = new File(DIRNAME);
         dir.mkdir();
         makeEmpty();
     }
 
-    public String getStat(){
+    private static Mail restoreMailFromFile(File f) throws IOException, ClassNotFoundException {
+        String name = f.getName();
+        FileInputStream fis = new FileInputStream(f);
+        ObjectInputStream o = new ObjectInputStream(fis);
+        Mail mail = (Mail) o.readObject();
+        fis.close();
+        return mail;
+    }
+
+    public String getStat() {
 
         int count = 0;
         long mesagesInBytes = 0;
 
-        for(File file : dir.listFiles()){
-            if(file.isFile() && file.getName().endsWith(".mail")){
+        for (File file : dir.listFiles()) {
+            if (file.isFile() && file.getName().endsWith(".mail")) {
                 count++;
                 mesagesInBytes += file.length();
 
             }
         }
-
-        return "+OK " +count + " " + mesagesInBytes;
+        return "+OK " + count + " " + mesagesInBytes + CRLF;
     }
 
     public String getList() {
@@ -38,59 +45,168 @@ private File dir;
         long oneMesageInBytes = 0;
         String mesagesList = "";
 
-
-        for(File file : dir.listFiles()){
-            if(file.isFile() && file.getName().endsWith(".mail")){
+        for (File file : dir.listFiles()) {
+            if (file.isFile() && file.getName().endsWith(".mail")) {
                 count++;
                 oneMesageInBytes = file.length();
                 mesagesInBytes += oneMesageInBytes;
-                mesagesList = mesagesList + count +" " +oneMesageInBytes + CRLF;
+                mesagesList = mesagesList + count + " " + oneMesageInBytes + CRLF;
             }
         }
-        return "+OK " + count + " " + mesagesInBytes + CRLF + mesagesList + ".";
+        return "+OK " + count + " " + mesagesInBytes + CRLF + mesagesList + "." + CRLF;
     }
 
     public String getList(String s) {
-        return null;
+
+        if (s != null) {
+
+            int count = 0;
+            int suchMessageNummer = Integer.getInteger(s);
+
+            for (File file : dir.listFiles()) {
+                if (file.isFile() && file.getName().endsWith(".mail") && suchMessageNummer == ++count) {
+                    return "+OK " + s + " " + file.length() + CRLF;
+                }
+            }
+        }
+        return "-ERR no such message " + s + CRLF;
     }
 
     public String setRSET() {
-        return null;
+
+        int count = 0;
+        File rsetFile;
+        String rsetFileName;
+
+        for (File file : dir.listFiles()) {
+            if (file.isFile() && file.getName().endsWith(".mail")) {
+                count++;
+                rsetFileName = file.getName();
+                if (rsetFileName.startsWith("TODEL")) {
+                    rsetFileName = rsetFileName.trim().split("//s+")[1];
+                    rsetFile = new File(rsetFileName);
+                    file.renameTo(rsetFile);
+                }
+            }
+
+        }
+        return "+OK maildrop have " + count + " message" + CRLF;
     }
 
-    public String update() {
-        return null;
+    public String setUpdate() {
+
+        for (File file : dir.listFiles()) {
+            if (file.isFile() && file.getName().endsWith(".mail") && file.getName().startsWith("TODEL")) {
+                file.delete();
+            }
+
+        }
+        return "+OK" + CRLF;
     }
 
     public String getMessage(String s) {
-        return null;
+
+        if (s != null) {
+
+            int count = 0;
+            int suchMessageNummer = Integer.getInteger(s);
+            String suchFile = "";
+
+            for (File file : dir.listFiles()) {
+                if (file.isFile() && file.getName().endsWith(".mail") && suchMessageNummer == ++count) {
+                    try {
+                        suchFile = restoreMailFromFile(file).getEmail();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    return "+OK message " + s + file.length() + CRLF + suchFile + CRLF;
+                }
+            }
+
+        }
+        return "-ERR no such message " + s+CRLF;
     }
 
     public String deleteMessage(String s) {
-        return null;
+
+        if (s != null) {
+
+            int count = 0;
+            int suchMessageNummer = Integer.getInteger(s);
+            File suchFile;
+
+            for (File file : dir.listFiles()) {
+                if (file.isFile() && file.getName().endsWith(".mail") && suchMessageNummer == ++count) {
+                    suchFile = new File("TODEL " + file.getName());
+                    if (file.renameTo(suchFile)) {
+                        return "+OK message " + s + " deleted" + CRLF;
+                    }
+                }
+            }
+        }
+        return "-ERR no such message " + s+CRLF;
     }
 
     public String getUIDL() {
-        return null;
+
+        int count = 0;
+        String uidl = "";
+        String mesagesList = "";
+
+
+        for (File file : dir.listFiles()) {
+            if (file.isFile() && file.getName().endsWith(".mail")) {
+                count++;
+                try {
+                    uidl = restoreMailFromFile(file).getUidl();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                mesagesList = mesagesList + count + " " + uidl + CRLF;
+            }
+        }
+        return "+OK " + CRLF + mesagesList + "."+CRLF;
     }
 
     public String getUIDL(String s) {
-        return null;
+        if (s != null) {
+
+            int count = 0;
+            int suchMessageNummer = Integer.getInteger(s);
+            String uidl = "";
+            for (File file : dir.listFiles()) {
+                if (file.isFile() && file.getName().endsWith(".mail") && suchMessageNummer == ++count) {
+                    try {
+                        uidl = restoreMailFromFile(file).getUidl();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    return "+OK " + s + " " + uidl + CRLF;
+                }
+            }
+        }
+        return "-ERR no such message " + s+CRLF;
     }
 
-    public void makeEmpty(){
-        for(File f : dir.listFiles()){
+    private void makeEmpty() {
+        for (File f : dir.listFiles()) {
             f.delete();
         }
     }
 
     public void saveNeuMail(String user, String host, String message) {
 
-        Mail email = new Mail (user, host, message);
+        Mail email = new Mail(user, host, message);
 
-        File file = new File(dir.getAbsolutePath() + "\\" +email.getUidl());
+        File file = new File(dir.getAbsolutePath() + "\\" + email.getUidl());
 
-        if( !file.exists()) {
+        if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException e) {

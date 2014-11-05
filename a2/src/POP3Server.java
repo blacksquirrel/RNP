@@ -103,7 +103,7 @@ class MailsKeeperThread  extends Thread {
             }
 
             //The Update State
-            mailsManager.update();
+            mailsManager.setUpdate();
             connectionSocket.close();
             System.out.println("connection with POP3Server " + name + " is broken, Server is off");
 
@@ -178,7 +178,7 @@ class MailsKeeperThread  extends Thread {
         if(request.length < 2){
             switch (request[0]){
                 case ("STAT"):
-                    reply =mailsManager.getStat();
+                    reply = mailsManager.getStat();
                     break;
                 case ("NOOP"):
                     reply = "+OK";
@@ -190,7 +190,7 @@ class MailsKeeperThread  extends Thread {
                     reply = mailsManager.setRSET();
                     break;
                 case ("QUIT"):
-                    reply = mailsManager.update();
+                    reply = mailsManager.setUpdate();
                     break;
                 case ("UIDL"):
                     reply = mailsManager.getUIDL();
