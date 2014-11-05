@@ -146,7 +146,7 @@ public class MailsManager {
                 }
             }
         }
-        return "-ERR no such message " + s+CRLF;
+        return "-ERR no such message " + s+ CRLF;
     }
 
     public String getUIDL() {
