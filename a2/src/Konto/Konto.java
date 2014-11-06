@@ -1,11 +1,13 @@
-public class POP3Konto {
+package Konto;
+
+public class Konto {
 
     private String user;
     private String password;
     private String serverAdress;
     private int port;
 
-    public POP3Konto(String user, String password, String serverAdress, int port) {
+    public Konto(String user, String password, String serverAdress, int port) {
         this.user = user;
         this.password = password;
         this.serverAdress = serverAdress;

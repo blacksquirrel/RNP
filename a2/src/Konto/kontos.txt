@@ -1,0 +1,4 @@
+scottyhaw:noopy1test:pop.mail.yahoo.com:995
+scotty.rn: :aol.de:995
+scotty-haw1:Snoopy1:pop.yandex.ru:110
+scotty.haw:Snoopy1test:pop3.web.de:995

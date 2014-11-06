@@ -1,3 +1,5 @@
+package Mail;
+
 import java.io.Serializable;
 
 /**

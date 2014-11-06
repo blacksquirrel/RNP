@@ -12,7 +12,7 @@ public class Client {
 
     public static void main(String[] args) {
         Socket clientSocket;
-        Scanner inFromUser;
+        BufferedReader inFromUser;
         DataOutputStream outToServer;
         BufferedReader inFromServer;
         String writeUser;
@@ -24,15 +24,15 @@ public class Client {
             inFromServer = new BufferedReader(new InputStreamReader(
                     clientSocket.getInputStream()));
 
-            inFromUser = new Scanner(System.in);
+            inFromUser = new BufferedReader(new InputStreamReader(System.in));
 
             while (makeChat) {
-                writeUser = inFromUser.nextLine() + '\n';
-                System.out.println("FROM USER: " + writeUser);
+                writeUser = inFromUser.readLine()+  "\r\n";
 
                 outToServer.write(writeUser.getBytes("UTF-8"));
 
                 messageToServer = inFromServer.readLine();
+
                 System.out.println("FROM SERVER: " + messageToServer);
 
                 if (messageToServer.startsWith("BYE") || messageToServer.startsWith("OK_BYE")) makeChat = false;

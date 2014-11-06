@@ -1,3 +1,7 @@
+package Mail;
+
+import Mail.Mail;
+
 import java.io.*;
 
 /**
@@ -227,6 +231,5 @@ public class MailsManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

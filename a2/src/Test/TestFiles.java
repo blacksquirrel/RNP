@@ -1,5 +1,8 @@
+package Test;
+
+import Mail.Mail;
+
 import java.io.*;
-import java.nio.file.Files;
 
 /**
  * Created by abb087 on 03.11.2014.
