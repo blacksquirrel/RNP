@@ -1,0 +1,4 @@
+POP3Client:localhost,11000,bla,bla
+SMTPClient:localhost,2500,bla,bla
+POP3IncomingMailServer:pop.smart-mail.de,110,rnp-a2@smart-mail.de,bla123
+SMTPOutgoingMailServer:smtp.smart-mail.de,25,rnp-a2@smart-mail.de,bla123
