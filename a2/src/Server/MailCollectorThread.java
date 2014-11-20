@@ -105,10 +105,10 @@ public class MailCollectorThread extends Thread {
             if (messageFromServer.trim().startsWith("+OK")) {
 
                 while (!(messageFromServer = readFromMailbox()).equals(".")) {
-                    if(messageFromServer.equals("..")) messageFromServer = ".";
                     line = line + messageFromServer + CRLF;
                 }
-                line = line + "." + CRLF;
+
+                line = line + messageFromServer + CRLF;
 
                 //Save mail to HDD
                 mailManager.saveNeuMail(konto.getUser(), konto.getHost(), line);
