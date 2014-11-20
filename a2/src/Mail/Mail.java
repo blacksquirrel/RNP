@@ -13,7 +13,7 @@ public class Mail implements Serializable {
     private String email;
     private String uidl;
 
-    public Mail(String user,String host, String email) {
+    public Mail(String user, String host, String email) {
         this.user = user;
         this.host = host;
         this.email = email;
@@ -39,9 +39,8 @@ public class Mail implements Serializable {
     private String generateUIDL() {
 
         long time = System.currentTimeMillis();
-        int randomNummber = (int) (Math.random() * (Integer.MAX_VALUE-100));
+        int randomNummber = (int) (Math.random() * (Integer.MAX_VALUE - 100));
 
-        return "<"+Long.toString(time, 36) + "." + Integer.toString(randomNummber, 36) + "@" + host+">";
+        return "<"+Long.toString(time, 36) + "." + Integer.toString(randomNummber, 36)+ getUser() + ">" + ".mail";
     }
-
 }

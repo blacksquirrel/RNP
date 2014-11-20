@@ -6,8 +6,8 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
-    private static final String HOST = "localhost";
-    private static int PORT = 3128;
+    private static final String HOST = "pop.smart-mail.de";
+    private static int PORT = 110;
     private static boolean makeChat = true;
 
     public static void main(String[] args) {
