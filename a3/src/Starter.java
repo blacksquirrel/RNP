@@ -1,8 +1,5 @@
 import java.io.*;
 
-/**
- * Created by maxim on 28.11.14.
- */
 public class Starter {
 
     public static void main(String[] args) {
