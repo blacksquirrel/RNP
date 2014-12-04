@@ -2,9 +2,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-/**
- * Created by maxim on 25.11.14.
- */
 public class PacketAckChecker extends Thread {
 
     private FileCopyClient fileCopyClient;
