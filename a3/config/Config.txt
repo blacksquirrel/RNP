@@ -1,0 +1,5 @@
+ServerName:localhost
+SourcePath:testSource
+DestPath:testTarget
+WindowSizeArg:
+ErrorRate:
