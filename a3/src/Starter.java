@@ -3,6 +3,14 @@ import java.io.*;
 public class Starter {
 
     public static void main(String[] args) {
+
+//        FileCopyServer myServer = new FileCopyServer();
+//        try {
+//            myServer.runFileCopyServer();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
         //read ConfigFile
         String serverName = null;
         String sourcePath = null;
@@ -11,21 +19,8 @@ public class Starter {
         String errorRate = null;
         int configArgs = 0;
 
-        File configFile = new File(
-                new File(
-                        new File(
-                                new File(
-                                        new File(
-                                                new File(
-                                                        new File(
-                                                                File.listRoots()[0],
-                                                                "Users"),
-                                                        "maxim"),
-                                                "IdeaProjects"),
-                                        "RNP"),
-                                "a3"),
-                        "config"),
-                "Config.txt");
+        File configFile = new File(new File(new File(new File(new File(new File(new File(
+                File.listRoots()[0], "Users"), "maxim"), "IdeaProjects"), "RNP"), "a3"), "config"), "Config.txt");
         if (!configFile.exists()) System.exit(0);
         String[] config;
 
@@ -44,6 +39,7 @@ public class Starter {
                         break;
                     case ("SourcePath"):
                         sourcePath = config[1];
+                        System.out.println(sourcePath);
                         configArgs++;
                         break;
                     case ("DestPath"):

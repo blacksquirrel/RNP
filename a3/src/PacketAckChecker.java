@@ -22,7 +22,7 @@ public class PacketAckChecker extends Thread {
 
                 FCpacket packet = new FCpacket(datagramPacket.getData(), datagramPacket.getLength());
 
-                System.out.println("Ack für packet " + packet.getSeqNum() + " empfangen.");
+                //  System.out.println("Ack für packet " + packet.getSeqNum() + " empfangen.");
 
                 fileCopyClient.setAck(packet);
                 fileCopyClient.cancelTimer(packet);
@@ -32,5 +32,4 @@ public class PacketAckChecker extends Thread {
             }
         }
     }
-
 }

@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.util.ArrayList;
 
 public class FileCopyClient extends Thread {
 
@@ -31,8 +32,11 @@ public class FileCopyClient extends Thread {
     private DatagramSocket socket;
     private PacketAckChecker packetAckChecker;
     private PacketBuffer buffer;
-    private int sendBase = 0;
+    private ArrayList<Long> paketRTTSaver;
     private int nextSeqN = 0;
+    private int packeteCount = 0;
+    private int resentCount = 0;
+    private int timeroutCount = 0;
 
     // Constructor
     public FileCopyClient(String serverArg, String sourcePathArg, String destPathArg, String windowSizeArg, String errorRateArg) {
@@ -41,12 +45,12 @@ public class FileCopyClient extends Thread {
         destPath = destPathArg;
         windowSize = Integer.parseInt(windowSizeArg);
         serverErrorRate = Long.parseLong(errorRateArg);
+        this.paketRTTSaver = new ArrayList<Long>(10);
 
     }
 
     public void runFileCopyClient() {
 
-        // ToDo!!
         long startTime = System.currentTimeMillis();
 
         //init Socket
@@ -59,13 +63,12 @@ public class FileCopyClient extends Thread {
 
         //start AckCheckerThread
         packetAckChecker = new PacketAckChecker(this, socket);
+        packetAckChecker.setDaemon(true);
         packetAckChecker.start();
 
         //init PacketBuffer
         buffer = new PacketBuffer(this, windowSize);
 
-        //send ControlPacket SeqNumber 0
-        sendPacket(makeControlPacket());
 
         //init file reader
         FileInputStream fileReader = null;
@@ -78,19 +81,32 @@ public class FileCopyClient extends Thread {
 
         FCpacket packetToSend;
 
+        //send ControlPacket SeqNumber 0
+        packetToSend = makeControlPacket();
+        paketRTTSaver.add(System.currentTimeMillis());
+
+        buffer.ad(packetToSend);
+        sendPacket(packetToSend);
+
         while ((packetToSend = getNextPacket(fileReader)) != null) {
-            while (buffer.isFull()) {
+
+            while (!buffer.acceptsNummber(packetToSend.getSeqNum())) {
                 //do nothing
             }
 
-
             startTimer(packetToSend);
+            paketRTTSaver.add(System.currentTimeMillis());
             buffer.ad(packetToSend);
             sendPacket(packetToSend);
+            packeteCount++;
         }
 
         //The End
-        System.out.println("Total Transfer Time: " + (System.currentTimeMillis() - startTime) + " ms");
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total Transfer Time: " + (endTime - startTime) + " ms");
+        System.out.println("Packet's: " + packeteCount + " / Ack's: " + paketRTTSaver.size() + " / Ressend: " + timeroutCount);
+
+        System.out.println("Packet Transfer Time: " + (endTime - startTime) / paketRTTSaver.size());
     }
 
     /**
@@ -139,7 +155,6 @@ public class FileCopyClient extends Thread {
             System.out.println("Have Problem with send Packet");
             e.printStackTrace();
         }
-
     }
 
     public void setAck(FCpacket packet) {
@@ -169,11 +184,14 @@ public class FileCopyClient extends Thread {
      * Implementation specific task performed at timeout
      */
     public void timeoutTask(long seqNum) {
+        timeroutCount++;
+        
         FCpacket packet = buffer.getPacket(seqNum);
 
         if (null != packet) {
             startTimer(packet);
             sendPacket(packet);
+            //System.out.println("Resend: " + packet.getSeqNum());
         }
     }
 
